@@ -1,0 +1,60 @@
+Step 1
+Download & extract 
+
+Step 2
+cd ~/Downloads
+sudo mv Sublime\ Text\ 2 /usr/lib/
+
+Step 3
+To call Sublime Text from the Terminal by just typing “sublime”
+sudo ln -s /usr/lib/Sublime\ Text\ 2/sublime_text /usr/bin/sublime
+
+Step 4
+To create a launcher in Unity and paste the following content:
+
+sudo sublime /usr/share/applications/sublime.desktop
+
+[Desktop Entry]
+Version=1.0
+Name=Sublime Text 2
+# Only KDE 4 seems to use GenericName, so we reuse the KDE strings.
+# From Ubuntu's language-pack-kde-XX-base packages, version 9.04-20090413.
+GenericName=Text Editor
+
+Exec=sublime
+Terminal=false
+Icon=/usr/lib/Sublime Text 2/Icon/48x48/sublime_text.png
+Type=Application
+Categories=TextEditor;IDE;Development
+X-Ayatana-Desktop-Shortcuts=NewWindow
+
+[NewWindow Shortcut Group]
+Name=New Window
+Exec=sublime -n
+TargetEnvironment=Unity
+
+Step 5
+To open all text files with Sublime Text 2
+sudo sublime /usr/share/applications/defaults.list
+And replace all occurrences of gedit.desktop with sublime.desktop.
+
+
+
+В DB встановлюєм Sublime Text (в папку Dropbox/progs/)
+cd ~/.config
+cp -r sublime-text-2 sublime-text-2-copy
+cd sublime-text-2
+sudo rm -rf *
+
+sudo ln -s ~/Dropbox/progs/Sublime\ Text\ 2.0.1\ x64/Data/Settings/ ~/.config/sublime-text-2/
+
+sudo ln -s ~/Dropbox/progs/Sublime\ Text\ 2.0.1\ x64/Data/Pristine\ Packages/ ~/.config/sublime-text-2/ 
+
+sudo ln -s ~/Dropbox/progs/Sublime\ Text\ 2.0.1\ x64/Data/Installed\ Packages ~/.config/sublime-text-2/ 
+
+sudo ln -s ~/Dropbox/progs/Sublime\ Text\ 2.0.1\ x64/Data/Packages/ ~/.config/sublime-text-2/
+
+#Install Pacage control:
+http://wbond.net/sublime_packages/package_control/installation
+
+

@@ -1,0 +1,51 @@
+mstsc /v:gbwlt093.got.volvocars.net:9506 /admin /span
+
+mstsc /v:GOTSVW3020:9506
+
+mstsc /v:172.20.106.166 /admin
+
+mstsc.exe [Connection File] [/v:Server[:Port]] [/admin] [/f] [/w:Width /h:Height] [/public] [/span]
+<mstsc.exe> ALL
+Connection File	
+<!--Specifies the name of an .rdp file for the connection.-->
+/v:<Server[:Port]
+<!--Specifies the remote computer and, optionally, the port number to which you want to connect.-->
+/admin
+<!--Connects you to a session for administering the server.-->
+/f
+<!--Starts Remote Desktop Connection in full-screen mode.-->
+/w:Width
+<!--Specifies the width of the Remote Desktop window.-->
+/h: Height
+<!--Specifies the height of the Remote Desktop window.-->
+/public
+<!--Runs Remote Desktop in public mode. In public mode, passwords and bitmaps are not cached.-->
+/span
+<!--Matches the Remote Desktop width and height with the local virtual desktop, spanning across multiple monitors if necessary.-->
+/edit Connection File
+<!--Opens the specified .rdp file for editing.-->
+/migrate
+<!--Migrates legacy connection files that were created with Client Connection Manager to new .rdp connection files.-->
+/?
+<!--Displays help at the command prompt.-->
+http://technet.microsoft.com/en-us/library/cc772390%28WS.10%29.aspx
+</mstsc.exe>
+
+
+gpresult - результат групових політик
+
+Шукаємо відриті порти
+netstat -an |find /i "listening"
+netstat -an |find /i "established"
+netstat -no
+
+wmic bios get serialnumber
+Серійний номер компа показує
+
+
+route add 192.168.0.16 mask 255.255.255.255 192.168.2.1
+<!-- route add x.x.x.x mask y.y.y.y z.z.z.z" at the command prompt.Replace the "x.x.x.x" with the IP address of the network to which you are adding a static route.Replace "y.y.y.y" with the subnet mask of the destination network, then replace "z.z.z.z"  -->
+
+
+uptime
+net statistics workstation

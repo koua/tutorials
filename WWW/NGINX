@@ -1,0 +1,187 @@
+Установка и расширенная настройка NGINX
+
+В качестве frontend-а(Фронтэнд) мы будем использовать всеми известный nginx.
+Если вы не будете использовать сервер для web-приложений — эту часть можно пропустить.
+
+В стандартном репозитории конечно есть уже nginx, но хотелось бы версию посвежее и без плясок.
+1. Изменяем файл /etc/apt/sources.list:
+
+$ sudo nano /etc/apt/sources.list
+
+
+и дописываем в самый низ:
+
+deb http://nginx.org/packages/debian/ wheezy nginx
+deb-src http://nginx.org/packages/debian/ wheezy nginx
+
+
+В случае если у вас debian отличный от 7, то вместо wheezy пишем его кодовое имя.
+
+2. Обновляем источники пакетов и устанавливаем nginx:
+
+$ sudo apt-get update && sudo apt-get install nginx
+
+
+3. Добавляем в начало файла nginx.conf новые параметры
+
+timer_resolution 100ms; #Уменьшает разрешение таймеров времени в рабочих процессах, за счёт чего уменьшается число системных вызовов 
+worker_rlimit_nofile 8192; #Изменяет ограничение на максимальное число открытых файлов (RLIMIT_NOFILE) для рабочих процессов
+worker_priority -5;# Выставляем более высокий приоритет процессу воркера
+
+
+4. Ищем worker_processes и выставляем количество по количеству ядер процессора, в нашем случае 1.
+
+worker_processes  1;
+
+
+5. Ищем директиву events и приводим к виду:
+
+events {
+    worker_connections  2048;
+    use epoll;
+}
+
+
+6. Редактируем директиву http, модифицируя или дописывая следующие параметры:
+
+sendfile        on; # экономия ресурсов при отдаче файлов
+#настройка сжатия контента при отдаче
+gzip on;
+gzip_min_length 1100;
+gzip_buffers 64 8k;
+gzip_comp_level 3;
+gzip_http_version 1.1;
+gzip_proxied any;
+gzip_types text/plain application/xml application/x-javascript text/css;
+# Таймаут при чтении тела запроса клиента
+client_body_timeout 10;
+# Таймаут при чтении заголовка запроса клиента
+client_header_timeout 10;
+# Таймаут, по истечению которого keep-alive соединение с клиентом не будет закрыто со стороны сервера
+keepalive_timeout 5 5;
+# Таймаут при передаче ответа клиенту
+send_timeout 10;
+
+
+7. Редактируем /etc/nginx/conf.d/sitename.conf или же (ubuntu) /etc/nginx/sites-available/sitename.conf где sitename будет имя вашего сайта:
+
+$ sudo nano /etc/nginx/conf.d/sitename.conf 
+
+
+Приводим к такому виду:
+
+#выделяем память на адреса клиентов
+limit_conn_zone $binary_remote_addr zone=perip:10m;
+limit_conn_zone $server_name zone=perserver:10m;
+server {
+    listen       80;
+    #пишем адреса нашего сайта
+    server_name  sitename.net www.sitename.net;
+    # Максимальный размер буфера для хранения тела запроса клиента
+    client_body_buffer_size 1K;
+    # Максимальный размер буфера для хранения заголовков запроса клиента
+    client_header_buffer_size 1k;
+    # Максимальный размер тела запроса клиента, прописанный в поле Content-Length заголовка. Если сервер должен поддерживать загрузку         файлов, это значение необходимо увеличить
+    client_max_body_size 1k;
+    # Количество и размер буферов для чтения большого заголовка запроса клиента
+    large_client_header_buffers 2 1k;
+    #отсеиваем неиспользуемые типы запросов
+    if ($request_method !~ ^(GET|HEAD|POST)$ ) {
+    return 444;
+    }
+    #логируем посетителей
+    access_log  /var/log/nginx/sitename.access.log  main;
+    #и конечно же ошибки
+    error_log  /var/log/nginx/sitename.error.log  main;
+    #выставляем принудительно кодировку всех документов
+    charset utf-8;
+    location / {
+        # Описываем зону (slimits), в которой будут храниться состояния сессий. Зона размером 1 Мб может хранить около 32000 состояний, мы устанавливаем ее размер равным 5 Мб
+        limit_conn perip 10;
+        limit_conn perserver 100;
+        # Блокируем менеджеры загрузки и некоторые типы ботов
+        if ($http_user_agent ~* LWP::Simple|BBBike|wget|curl|msnbot|scrapbot) {
+            return 403;
+        }
+        # Блокируем referer спам. (не позволяем переход с гнусных сайтов)
+        if ( $http_referer ~* (babes|forsale|girl|jewelry|love|nudit|organic|poker|porn|sex|teen|pron|money|free|jwh|speed|test|cash|xxx) )
+    {
+            return 403;
+        }
+        #ДАЛЕЕ ИДУТ ВАШИ НАСТРОЙКИ ДЛЯ location / вашего сайта
+    }
+}
+
+
+Далее в статье мы вернемся к этим настройкам.
+
+Ковыряем системные переменные, защищаемся от некоторых видов атак
+
+Данные параметры дают некоторую масло-масленность и в некоторых случаях повышают нагрузку.
+Редактируем /etc/sysctl.conf
+
+$ sudo nano /etc/sysctl.conf
+
+
+Дописываем в конец
+
+# Защита от smurf-атак
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+# Защита от неправильных ICMP-сообщений
+net.ipv4.icmp_ignore_bogus_error_responses = 1
+# Защита от SYN-флуда
+net.ipv4.tcp_syncookies = 1
+# Запрещаем маршрутизацию от источника
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
+# Защита от спуфинга
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+# Мы не маршрутизатор, если конечно это так
+net.ipv4.ip_forward = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+# Включаем ExecShield при атаках направленных на переполнение буфера или срыв стэка
+kernel.exec-shield = 1
+kernel.randomize_va_space = 1
+# Расширяем диапазон доступных портов
+net.ipv4.ip_local_port_range = 2000 65000
+# Увеличиваем максимальный размер TCP-буферов
+net.ipv4.tcp_rmem = 4096 87380 8388608
+net.ipv4.tcp_wmem = 4096 87380 8388608
+net.core.rmem_max = 8388608
+net.core.wmem_max = 8388608
+net.core.netdev_max_backlog = 5000
+net.ipv4.tcp_window_scaling = 1
+
+#ускоряем высвобождение памяти(см. "Ускоряем общую работу системы")
+vm.swappiness=10
+
+
+Теперь можно перезагрузится
+
+Ускоряем общую работу системы
+
+Prelink и Preload. Prelink для создание статичных адресов библиотек, Preload это небольшое приложение, которое следит за файлами наиболее часто используемых приложений, и загружает их в память, когда система простаивает.
+1. Установка Prelink:
+
+$ sudo apt-get -y install prelink
+
+
+Редактируем файл /etc/default/prelink:
+
+$ sudo nano /etc/default/prelink
+
+
+Измените строку с PRELINKING=unknown на PRELINKING=yes
+Запускаем:
+
+$ sudo /etc/cron.daily/prelink
+
+
+2. Установка Preload:
+
+$ sudo apt-get -y install preload
+
+
+Все, больше ничего не требуется

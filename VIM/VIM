@@ -1,0 +1,37 @@
+﻿#Як налаштувати VIM
+#Майже всі налаштування VIM змінюються доповненням його конфігураційного файлу.Аби нічого не напсувати я створю копію цього файла.
+
+sudo cp /etc/vim/vimrc /etc/vim/vimrcBACKUP
+
+#Тепер я відредагую сам файл.
+sudo vim /etc/vim/vimrc
+
+#Нумерація Рядків!
+#Додати в конфігураційни файл ці два рядки!
+
+"Show line number
+set number
+
+#Підкреслює той рядок який я редагую.Стає простіше читати.
+
+"Higlight current line only in insert mode
+autocmd InsertLeave * set nocursorline
+autocmd InsertEnter * set cursorline
+
+
+#Вімкнення автодоповнення
+#Додаємо це в конфіг файл і зберігаємо.
+#Кожен раз коли я буду редагувати JS i напишу частину кода 
+#(Наприклад document. потім натисну Ctrl + x + o (можна послідовно) мені #зявляться всі доступні опції.
+#Те саме з HTML але лоя підтримки 5 версії поьрібно буде ще дещо зробити
+
+#http://www.youtube.com/watch?v=8di3g-AGVaI
+
+autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
+autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+
+#
+Збільшити буфер історії
+
+set history=1000

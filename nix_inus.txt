@@ -1,0 +1,164 @@
+﻿uname -v
+
+cat /etc/*-release
+cat /proc/version
+
+
+killall 
+
+Find:
+
+Find files older than 60 days
+find * -mtime +60
+
+Find files owned by apache user
+find /var/www/ -user apache
+
+Find directories owned by apache user
+find /var/www/ -user apache -type d
+
+sudo find -type f -name *.iso -size +10000k -amin -10
+-type f 	  - type of the file
+-amin -10 - до яких зверталися за останні 10хв 
+-mmin -10 - модифіковані за останні 10 хв
+
+find / - name 'Metallica*' -ls
+
+find / - name 'Metallica*' -exec ls -l {\}\ \;
+-exec виконує команду після закінчення пошуку і маніпулює результатом.
+{\}\ is basically an indicator that the filenames returned by the search should be substituted here.
+\; is the terminating string, and is required at the end of the command
+
+locate *.html -i -q
+-i ignore  case
+-q option to suppress error messages
+
+locate nrpe -i -q
+
+dpkg -l | grep nginx - looking for nginx package
+
+Listing files in a directory
+ls -lh
+
+
+
+Files:
+
+Delete files in backup folder which are older than 60 days
+rm -f `find /backup/ -mtime +60`
+
+Search for a string inside files
+grep -H -r “search me” /var/www
+
+cat AMQERR01.LOG | grep -i -A5 VCC901 | grep 10/26/11
+
+grep -i -A5 VCC901 VMQPD706.log | grep 2012-12-10
+
+cat /etc/*-release
+
+Directory:
+
+Copy an entire directory (files + subdirectories)
+cp -R existingdir/ newdir/
+
+Zip up an entire directory
+zip -r zipefilename foldername
+
+Count total number of files in a directory
+ls -1 | wc -l
+find . -type f | wc -l
+
+
+Networking
+
+ifdown eth0  - kill eth0
+ifup eth0 - up eth0
+
+/etc/init.d/networking restart - restarts all the networks services
+curl -v --interface 10.254.58.201 telnet://133.189.133.182:11414
+
+All users
+cat /etc/passwd |grep -i user
+
+find /home/kosh/Dropbox/zd-rates/ -type f -exec cat {$this} > file.txt \;
+
+All programs that are runing into file 
+ps -aux > log_name
+
+c:\Program Files\PuTTY>pscp C:\SSL\file.txt kshysh@gbwlt079:/tmp/
+http://the.earth.li/~sgtatham/putty/0.58/htmldoc/Chapter5.html#pscp
+
+Putty
+pscp c:\documents\file.txt user@example.com:/tmp/foo
+
+Finding the size of a directory
+
+du
+df -h
+http://www.codecoffee.com/tipsforlinux/articles/22.html
+
+Free (RAM)
+$ free -t -m
+
+See Every Process Running As User Vivek
+ps -U vivek -u vivek u
+
+Find Out The Top 10 Memory Consuming Process
+ps -auxf | sort -nr -k 4 | head -10
+CPU
+ps -auxf | sort -nr -k 3 | head -10
+
+Які порти слухаються
+netstat -anp --tcp --udp | grep LISTEN
+
+Юзери в системі
+cat /etc/passwd
+
+adduser -s /sbin/nologin -d /home/testing testing
+
+Remove or delete
+Remove repository
+ sudo gedit  /etc/apt/sources.list
+ sudo gedit  /etc/apt/sources.list.d
+
+sudo apt-get remove --purge apache2 apache2-utils
+
+Для того аби зайти на віндову шару
+smb://10.0.0.6/movies
+
+smb://192.168.2.117/Temp2
+
+
+
+Створення файлу розміром 200MB
+dd if=/dev/zero of=./disk-image bs=1 count=0 seek=200M
+
+Видалення великої кількості файлів
+rm -r /some_dir/
+
+ls | xargs rm
+
+
+mount -t vboxsf pshare /home/trava/
+
+pshare - твоя директорія на ХОСТОВІЙ машині
+
+/home/trava/ - те місце на віртуалці куди буде примонтована розшарена папка з Хостової машини
+
+
+
+Як варіант
+sudo mount -t vboxsf -o uid=1000,gid=1000 pshare /home/trava/
+
+
+echo `du -s NAY | awk '{print $1}'` / `du -s . | awk '{print $1}'`
+echo "scale=5; `du -s Dropbox | awk '{print $1}'` / `du -s . | awk '{print $1}'`" | bc
+
+
+#!/bin/bash
+target_size=`du -s $1 | awk '{print $1}'`
+all_size=`du -s . | awk '{print $1}'`
+echo "scale=3; $target_size * 100 / $all_size" | bc
+
+
+time is |cat VMQPD706.log | grep -i -A5 VCC901 | grep 2012-12-10

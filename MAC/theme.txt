@@ -1,0 +1,15 @@
+﻿Installing Fonts
+If you want fonts to only be available to you, drag them to the yourusername/Library/Fonts folder.
+If you want fonts to be available to anyone who uses your computer, drag them to the Library/Fonts folder. You will need to supply an administrator password in order to make changes to the Fonts folder.
+
+1. Drag or copy and paste the TTF or OTF font files to the Library/Fonts folder
+cd
+mv *.otf ~/Library/Fonts/
+
+2. To activate the fonts, restart the application - some applications may require a computer restart.
+
+OR
+
+Manage Fonts With Font Book
+
+Font Book is an application that comes with the Mac. Font Book lets you manage your fonts, including installing, uninstalling, viewing, and organizing them. You can find Font Book at /Applications/Font Book
