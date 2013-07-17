@@ -1,5 +1,4 @@
 ﻿START
-
 Canonical Partner Repository
 sudo add-apt-repository "deb http://archive.canonical.com/ $(lsb_release -sc) partner"
 
@@ -26,13 +25,14 @@ wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O- | s
 sudo sh -c 'echo "deb http://download.virtualbox.org/virtualbox/debian precise contrib" >> /etc/apt/sources.list'
 sudo apt-get update & sudo apt-get install virtualbox 
 
-Не обов’язкове
+Optional
 Gnom3
+
 sudo add-apt-repository ppa:gnome3-team/gnome3
 sudo apt-get update && sudo apt-get install gnome-shell
 
 
-NETWORKING
+#NETWORKING - static
 sudo vim /etc/network/interfaces 
 
 # The primary network interface
@@ -45,7 +45,7 @@ iface eth0 inet static
 
 
 sudo vim /etc/hosts
-192.168.0.111     nekoko.com.ua    nekoko
+192.168.0.111     neko.com    neko
 
 Edit the template’s tail file:
 sudo vim /etc/resolvconf/resolv.conf.d/tail
@@ -59,73 +59,78 @@ sudo /etc/init.d/networking restart
 
 
 SSH
-If SSH is workin and on what port
-
+1.
+#Check if SSH is runing and on what port
 sudo netstat -anp | grep sshd
 
-WIN+PuTTYgen
-
-1.PuTTYgen  з http://www.chiark.greenend.org.uk
-2.Генеруємо ключ (4088 bit)
-4.копіюємо його
-3.заходимо на сервер
-4.
+2.
+#remote server
 mkdir ~/.ssh
 chmod 700 ~/.ssh
-chmod 700~/.ssh/authorized_keys
-
-chmod 600 file – owner can read and write
-chmod 700 file – owner can read, write and execute
-
-vim ~/.ssh/authorized_keys (втсавляємо зкопійований ключ і зберігаємо)
-
-
-NIX
-
-mkdir ~/.ssh
-chmod 700 ~/.ssh
-cd /home/kosh/.ssh/
+cd ~/.ssh/
 ssh-keygen -t rsa -b 4090
 
-#Зявляється 2 файлика (id_rsa.pub і id_rsa).
+3.
+#2 files will appear(id_rsa.pub and id_rsa). Copy content of id_rsa.pub to authorized_keys file.
 cat id_rsa.pub >> authorized_keys
+#or 
+vim ~/.ssh/id_rsa.pub
+vim ~/.ssh/authorized_keys
 
-#Transfer Client Key (public) to remote Host
+4.
+#Copy id_rsa to your local host.
+
+5.
+#Delete private key from the server.
+rm id_rsa*
+
+Done!
+
+#Alternative
+#Keys are generated on local host
+
+1.
+#The same 
+2.
+#The same
+
+3.
+#Transfer Client Key (public) to remote host. Private key remains on locan host
 cat ~/.ssh/id_dsa.pub | ssh user@remotehost.com «cat >> ~/.
+#or
 ssh-copy-id [-i [identity_file]] [user@remotehost.com] -p <port_nr>
 
 
-Відкриваємо той що
-vim id_rsa
-#Копіюємо ввесь вміст і в puttygen.exe
-#Отримуємо приватний ключ для putty
-#Коли ключик для putty готовий - видаляємо оригінал з сервера.
+#For windows:
+1.
+#Copy everything from id_rsa and paste it in puttygen.exe
+vim ~/.ssh/id_rsa
+2.
+#Convert id_rsa to pytty format.
 
-rm id_rsa*
 
-#Далі редагуємо конфіги
-sudo vim /etc/ssh/sshd_config
-
-5.
+#Edit ssh configs on a remote server
+1.
+#Make backup
 sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.original
-
 #Removes all writing permissions
 sudo chmod a-w /etc/ssh/sshd_config.original
 
-vim /etc/ssh/sshd_config
-
+2.
+#Edit
+sudo vim /etc/ssh/sshd_config
 
 PasswordAuthentication no
 RSAAuthentication yes
 PubkeyAuthentication yes
 AuthorizedKeysFile          %h/.ssh/authorized_keys
 
-Port 2213
+Port 12213
 PasswordAuthentication no
 PermitRootLogin no
 PermitEmptyPasswords no
 UsePAM no
-AllowUsers kosh
+AllowUsers user
 ClientAliveInterval 300
 ClientAliveCountMax 0
 
@@ -137,14 +142,13 @@ or
 sudo servse ssh restart
 
 More security
-mv ~/.ssh/id_rsa ~/.ssh/id_rsa.old
+cp ~/.ssh/id_rsa ~/.ssh/id_rsa.old
 openssl pkcs8 -topk8 -v2 des3 -in ~/.ssh/id_rsa.old -out ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 rm ~/.ssh/id_rsa.old
 
 FOR MAC
 ssh -i <KEY> -p <PORT> user@IP
-
 
 KILL SSH
  
@@ -161,24 +165,20 @@ user:~> ps x | grep sshd
 33264  p3  R+     0:00.00 grep sshd
 user:~> kill 33240
 
-
-SHH - тонке налаштування
-
-TCP Wrappers Configuration
-/etc/hosts.allow
-
+#SSH - advanced configuration
+1.
+#TCP Wrappers Configuration
+sudo vim /etc/hosts.allow
 
 ALL: 127.0. [::1] (the 127.0. range is allowed, as well as the localhost ipv6 address)
-
 sshd : 192.168.0.5 (specific IP) 192.168.0. (specific range) EXCEPT 192.168.0.10 (range exceptions)
 
-/etc/hosts.deny
+sudo vim /etc/hosts.deny
 Log and deny access (booby traps) - we do not allow connections from crackers.com:
 ALL : ALL \
     : spawn (/bin/echo %a from %h attempted to access %d >> \
       /var/log/Access_Deny.log) \
     : deny
-
 
 
 RAID+LVM
@@ -204,9 +204,9 @@ Test your RAID
 cat /proc/mdstat
 bitmap: 4/466 pages [16KB], 1024KB chunk
 
-sudo mdadm -G /dev/md0 -b internal (Вмикає Bitmap)
+sudo mdadm -G /dev/md0 -b internal (turns of Bitmap)
 
-імітація падінняч вінта
+to simulate a fail
 mdadm /dev/md0 --fail /dev/sda6
 
 
@@ -217,17 +217,7 @@ You can use fdisk to manually create a partition table on the new drive identica
 If both drives are identical you can use the sfdisk command to duplicate the partition. For example, to copy the partition table from the second drive “sdb” 
 onto the first drive “sda”, the sfdisk command is as follows:
 
-
 sfdisk -d /dev/sdb | sfdisk /dev/sda
-
 
 mdadm --add /dev/md0 /dev/sda1
 mdadm --add /dev/md1 /dev/sda2
-
-
-SAMBA
-
-
-sudo useradd -s /bin/false  -c "Test" -m -g users -p gogigogi ftptest
-sudo usermod -s /bin/false tom
-useradd -s /usr/sbin/nologin tony
