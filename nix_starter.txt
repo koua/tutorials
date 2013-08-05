@@ -68,7 +68,7 @@ sudo netstat -anp | grep sshd
 mkdir ~/.ssh
 chmod 700 ~/.ssh
 cd ~/.ssh/
-ssh-keygen -t rsa -b 4090
+ssh-keygen -t rsa -b 4071
 
 3.
 #2 files will appear(id_rsa.pub and id_rsa). Copy content of id_rsa.pub to authorized_keys file.
@@ -82,7 +82,7 @@ vim ~/.ssh/authorized_keys
 
 5.
 #Delete private key from the server.
-rm id_rsa*
+rm id_rsa
 
 Done!
 
@@ -120,19 +120,26 @@ sudo chmod a-w /etc/ssh/sshd_config.original
 #Edit
 sudo vim /etc/ssh/sshd_config
 
-PasswordAuthentication no
+Port 22221
 RSAAuthentication yes
 PubkeyAuthentication yes
 AuthorizedKeysFile          %h/.ssh/authorized_keys
-
-Port 12213
 PasswordAuthentication no
 PermitRootLogin no
 PermitEmptyPasswords no
-UsePAM no
 AllowUsers user
 ClientAliveInterval 300
 ClientAliveCountMax 0
+
+X11Forwarding   no
+LogLevel INFO
+
+ListenAddress 192.168.1.1
+
+ListenAddress 192.168.1.2
+
+HostbasedAuthentication   no
+
 
 5.
 sudo /etc/init.d/ssh restart
@@ -221,3 +228,21 @@ sfdisk -d /dev/sdb | sfdisk /dev/sda
 
 mdadm --add /dev/md0 /dev/sda1
 mdadm --add /dev/md1 /dev/sda2
+
+
+tmux attach || tmux new
+
+Dettach
+Ctrl+b d 
+
+Create a window
+Ctrl+b c
+
+Go to the window
+Ctrl+b 0...9 
+
+Copy&Paste
+Ctrl+b PgUp
+Scroling
+PgUp, PgDown
+q - quit
